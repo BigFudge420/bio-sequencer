@@ -15,7 +15,7 @@ class BioSeq:
         self.seq = self.seq.upper()
         self.seq_type = self.seq_type.upper()
 
-        if self.seq_type not in ('DNA', 'RNA'):
+        if self.seq_type not in ('DNA', 'RNA', 'AA'):
             raise ValueError(f'{self.seq_type} is not a valid sequence')
 
         self.is_valid = self.validate()
