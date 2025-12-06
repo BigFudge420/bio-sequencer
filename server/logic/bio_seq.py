@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
-from bio_structs import *
 from random import choice
 from collections import Counter
 from orf import ORF
+from bio_structs import *
 
 @dataclass
 class BioSeq:
@@ -190,4 +190,13 @@ class BioSeq:
                 if self.seq_type in ('DNA', 'RNA')
                 else None
             )
+        }
+    
+    def analyze_seq(self) -> dict:
+        return {
+            'sequence' : self.to_dict(),
+            'orfs' : [
+                orf.to_dict() 
+                for orf in self.all_prots_from_orfs()
+            ]
         }
