@@ -16,8 +16,6 @@ class AnalysisReq(BaseModel):
     seq : str
     seq_type : str
     label : str
-    organism_type : str
-    analysis_mode : str
 
 @app.post('/analyse')
 def analyze(req : AnalysisReq) -> dict:

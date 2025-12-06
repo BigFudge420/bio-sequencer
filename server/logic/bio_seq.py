@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from random import choice
 from collections import Counter
-from orf import ORF
-from bio_structs import *
+from logic.orf import ORF
+from logic.bio_structs import *
 
 @dataclass
 class BioSeq:
@@ -15,7 +15,7 @@ class BioSeq:
         self.seq = self.seq.upper()
         self.seq_type = self.seq_type.upper()
 
-        if self.seq_type not in ('DNA', 'RNA', 'AA'):
+        if self.seq_type not in ('DNA', 'RNA'):
             raise ValueError(f'{self.seq_type} is not a valid sequence')
 
         self.is_valid = self.validate()
