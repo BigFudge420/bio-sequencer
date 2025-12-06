@@ -8,17 +8,25 @@ export default function Input({ setSubmitted, setData }) {
 
     const API_URL = import.meta.env.VITE_API_URL
 
+    console.log("import.meta.env in Input.jsx:", import.meta.env);
+    console.log("API_URL in Input.jsx:", API_URL);
+
+
     const fetchData = async (seq, label, seqType) => {
         try {
             const res = await fetch(`${API_URL}/analyse`, {
                 method: 'POST',
-                headers: {'Content-Type' : 'applications/json'},
+                headers: {'Content-Type' : 'application/json'},
                 body : JSON.stringify({
                     seq : seq,
                     seq_type : seqType,
                     label : label
                 })
             })
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
     
             const data = await res.json()
             setData(data)
@@ -32,13 +40,14 @@ export default function Input({ setSubmitted, setData }) {
 
     return (
         <div className="form">
+            <h2>Enter the details of your sequence</h2>
             <div className="input-container">
                 <label htmlFor="seq">Enter a sequence to analyze</label>
                 <input 
                     id="seq" 
                     className="seq-input input" 
                     type="text"
-                    onChange={() => setSeq(this.value)}
+                    onChange={(e) => setSeq(e.target.value)}
                 />
             </div>
             <div className="input-container">
@@ -47,7 +56,7 @@ export default function Input({ setSubmitted, setData }) {
                     id="label"
                     className="label-input input"
                     type="text" 
-                    onChange={() => setLabel(this.value)}
+                    onChange={(e) => setLabel(e.target.value)}
                 />
             </div>
             <div className="input-container">
@@ -56,7 +65,7 @@ export default function Input({ setSubmitted, setData }) {
                     name="seq-type" 
                     id="seq-type" 
                     className="type-input input"
-                    onChange={() => setSeqType(this.value)}
+                    onChange={(e) => setSeqType(e.target.value)}
                 >
                     <option value="DNA">DNA</option>
                     <option value="RNA">RNA</option>
@@ -66,7 +75,7 @@ export default function Input({ setSubmitted, setData }) {
                 className="submit-btn"
                 onClick={() => fetchData(seq, label, seqType)}
             >
-                Submit
+                Analyse
             </button>
         </div>
     )

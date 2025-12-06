@@ -1,3 +1,9 @@
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .input-container {
     display: flex;
     flex-direction: column;
@@ -5,4 +11,8 @@
 
 .input {
     max-width: 200px;
+}
+
+.submit-btn {
+    max-width: 100px;
 }
