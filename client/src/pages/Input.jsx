@@ -10,8 +10,7 @@ export default function Input({ setSubmitted, setData }) {
 
     console.log("import.meta.env in Input.jsx:", import.meta.env);
     console.log("API_URL in Input.jsx:", API_URL);
-
-
+    
     const fetchData = async (seq, label, seqType) => {
         try {
             const res = await fetch(`${API_URL}/analyse`, {
