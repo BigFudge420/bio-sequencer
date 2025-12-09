@@ -4,13 +4,14 @@ from typing import Optional
 from bio_utils.bio_seq import BioSeq
 from bio_utils.bio_structs import SEQ_TYPES
 from logic.stream_file import stream_file
+from logic.parse_text import parse_text
 import logging
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['http://localhost:5173'],
+    allow_origins=['*'],
     allow_methods=['*'],
     allow_headers=['*']
 )
@@ -18,7 +19,7 @@ app.add_middleware(
 logger = logging.getLogger("bioseq_logger")
 
 @app.post('/analyse')
-def analyze(
+async def analyze(
     file : UploadFile = File(...),
     seq_type: str = Form('DNA') 
     ) -> dict:
@@ -33,11 +34,11 @@ def analyze(
 
     MAX_BYTES = 5000000 
     
-    text = stream_file(file, MAX_BYTES)
+    text = await stream_file(file, MAX_BYTES)
+
+    result = parse_text(text, logger)
     
-    return {
-        "message": "This is a placeholder response from the /analyse endpoint."
-    }   
+    return result
 
 
 

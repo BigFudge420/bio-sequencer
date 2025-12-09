@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from random import choice
 from collections import Counter
-from logic.orf import ORF
-from logic.bio_structs import *
+from bio_utils.orf import ORF
+from bio_utils.bio_structs import *
 
 @dataclass
 class BioSeq:

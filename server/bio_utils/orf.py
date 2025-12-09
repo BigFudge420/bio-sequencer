@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from logic.bio_structs import *
+from bio_utils.bio_structs import *
 
 @dataclass
 class ORF:
