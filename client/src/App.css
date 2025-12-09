@@ -16,3 +16,7 @@
 .submit-btn {
     max-width: 100px;
 }
+
+label {
+    font-weight: bold;
+}

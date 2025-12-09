@@ -2,25 +2,30 @@ import React from "react";
 import { useState } from "react";
 
 export default function Input({ setSubmitted, setData }) {
-    const [seq, setSeq] = useState('ACTG')
-    const [label, setLabel] = useState('No label')
     const [seqType, setSeqType] = useState('DNA')
+    const [formData, setFormData] = useState(null)
 
     const API_URL = import.meta.env.VITE_API_URL
+    const MAX_BYTES = 5000000
+    const ALLOWED_EXTENSIONS = ['.fasta', '.fa', '.txt']
 
     console.log("import.meta.env in Input.jsx:", import.meta.env);
     console.log("API_URL in Input.jsx:", API_URL);
     
-    const fetchData = async (seq, label, seqType) => {
+    const handleUpload = (file) => {
+        
+
+        const form = new FormData()
+        form.append('file', file)
+        form.append('seq_type', seqType)
+        setFormData(form)
+    }
+
+    const fetchData = async () => {
         try {
             const res = await fetch(`${API_URL}/analyse`, {
                 method: 'POST',
-                headers: {'Content-Type' : 'application/json'},
-                body : JSON.stringify({
-                    seq : seq,
-                    seq_type : seqType,
-                    label : label
-                })
+                body : formData
             })
 
             if (!res.ok) {
@@ -41,22 +46,14 @@ export default function Input({ setSubmitted, setData }) {
         <div className="form">
             <h2>Enter the details of your sequence</h2>
             <div className="input-container">
-                <label htmlFor="seq">Enter a sequence to analyze</label>
+                <label htmlFor="file">Choose a file to analyze</label>
                 <input 
-                    id="seq" 
-                    className="seq-input input" 
-                    type="text"
-                    onChange={(e) => setSeq(e.target.value)}
-                />
-            </div>
-            <div className="input-container">
-                <label htmlFor="label">Label the sequence</label>
-                <input 
-                    id="label"
-                    className="label-input input"
-                    type="text" 
-                    onChange={(e) => setLabel(e.target.value)}
-                />
+                    id="file" 
+                    className="file input" 
+                    type="file"
+                    accept=".fa,.fasta,.txt"
+                    onChange={(e) => handleUpload(e.target.files[0])}
+                />  
             </div>
             <div className="input-container">
                 <label htmlFor="seq-type">Enter a sequence type</label>
@@ -72,7 +69,7 @@ export default function Input({ setSubmitted, setData }) {
             </div>
             <button 
                 className="submit-btn"
-                onClick={() => fetchData(seq, label, seqType)}
+                onClick={() => fetchData()}
             >
                 Analyse
             </button>
