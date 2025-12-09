@@ -1,22 +1,18 @@
 # Python
-/server/api/__pycache__/
-/server/logic/__pycache__/
+__pycache__/
 
 # Virtual Environments
-server/.venv/
+.venv/
 
 # Node.js
 node_modules/
-npm-debug.log*
 
 # Build outputs
-client/dist/
-client/build/
-server/dist/
-server/build/
+dist/
 
 # Environment variables
-client/.env.local
+.env
+.env.local
 
 # IDE and Editors
 .vscode/
