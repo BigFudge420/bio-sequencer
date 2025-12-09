@@ -7,7 +7,6 @@ export default function showError(code) {
     }
 
     const message = ERROR_MESSAGES[code] || 'An unknown error occurred.'
-    console.error(`Error ${code}: ${message}`)
-
-    return message
+    
+    throw new Error(`Error ${code}: ${message}`)
 }
