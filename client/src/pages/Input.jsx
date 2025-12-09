@@ -6,6 +6,8 @@ import showError from "../utilities/showError";
 export default function Input({ setSubmitted, setData }) {
     const [seqType, setSeqType] = useState('DNA')
     const [formData, setFormData] = useState(null)
+    const [previewData, setPreviewData] = useState(null)
+    const [headerData, setHeaderData] = useState(null)
 
     const API_URL = import.meta.env.VITE_API_URL
     const MAX_BYTES = 5000000
@@ -14,7 +16,7 @@ export default function Input({ setSubmitted, setData }) {
     console.log("import.meta.env in Input.jsx:", import.meta.env);
     console.log("API_URL in Input.jsx:", API_URL);
     
-    const handleUpload = (file) => {
+    const handleUpload = async (file) => {
         if (file.size > MAX_BYTES) {
             showError(413)
             return
@@ -25,7 +27,15 @@ export default function Input({ setSubmitted, setData }) {
         if (!ALLOWED_EXTENSIONS.includes(`.${ext}`)){
             showError(422)
             return
-        }
+        }   
+
+        const text = await file.slice(0, 160).text()
+        const lines = text.split('\n')
+        const header = lines.find(line => line.startsWith('>')) || 'SEQ_01'
+        const preview = lines.filter(line => !line.startsWith('>')).join('')
+
+        setPreviewData(preview)
+        setHeaderData(header)
 
         const form = new FormData()
         form.append('file', file)
@@ -57,6 +67,13 @@ export default function Input({ setSubmitted, setData }) {
     return (
         <div className="form">
             <h2>Enter the details of your sequence</h2>
+            {previewData && (
+                <div>
+                    <p>PREVIEW</p>
+                    <p>{headerData}</p>
+                    <p>{previewData}...</p>
+                </div>
+            )}
             <div className="input-container">
                 <label htmlFor="file">Choose a file to analyze</label>
                 <input 
