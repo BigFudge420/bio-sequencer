@@ -2,13 +2,15 @@ import React from "react";
 
 export default function Data({data}) {
     console.log(data)
-    const msg = data.message
+    const header = data.header
+    const sequence = data.sequence
 
     return (
         <div>
             <h2>Analysis</h2>
             <div>
-                <p>{msg}</p>
+                <p>{header}</p>
+                <pre>{sequence}</pre>
             </div>
         </div>
     )
