@@ -40,7 +40,8 @@ export default function Input({ setSubmitted, setData }) {
             })
 
             if (!res.ok) {
-                showError(res.status)
+                const err = await res.json() 
+                showError(res.status, err.detail)
             }
     
             const data = await res.json()

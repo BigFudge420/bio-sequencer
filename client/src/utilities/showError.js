@@ -1,4 +1,4 @@
-export default function showError(code) {
+export default function showError(code, customMessage = null) {
     const ERROR_MESSAGES = {
         400: 'Bad Request: The server could not understand the request due to invalid syntax.',
         413: 'Payload Too Large: The uploaded file exceeds the server\'s size limit.',
@@ -6,7 +6,7 @@ export default function showError(code) {
         500: 'Internal Server Error: The server has encountered a situation it doesn\'t know how to handle.'
     }
 
-    const message = ERROR_MESSAGES[code] || 'An unknown error occurred.'
+    const message = customMessage || ERROR_MESSAGES[code] || 'An unknown error occurred.'
     
     throw new Error(`Error ${code}: ${message}`)
 }
