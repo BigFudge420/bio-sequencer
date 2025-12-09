@@ -30,10 +30,9 @@ Header sanitization:
   "count": 1,
   "result": {
     "header": "MY_SEQ",
-    "seq_type": "DNA",
-    "length": 123,
+    "sequence": ...,
+    "orfs": ...,
     "warnings": [],
-    "analysis": ...
   }
 }
 ```
