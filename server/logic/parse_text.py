@@ -17,4 +17,9 @@ def parse_text(text: str, logger: Optional[logging.Logger] = None) -> dict:
     if logger:
         logger.info(f'Parsed header: {sanitized_header}')
         logger.info(f'Sequence length: {len(sequence)}')
+
+    return {
+        'header' : sanitized_header,
+        'sequence' : sequence
+    }
     
