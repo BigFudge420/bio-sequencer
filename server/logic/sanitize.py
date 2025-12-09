@@ -3,6 +3,9 @@ import logging
 from typing import Optional
 
 def sanitize(header: Optional[str], logger : Optional[logging.Logger],fallback : str = 'SEQ_01', maxlen : int = 100) -> str:
+    logger = logger or logging.getLogger("bioseq_logger")
+    logger.info("Starting header sanitization.")
+    
     if not header:
         return fallback
     
