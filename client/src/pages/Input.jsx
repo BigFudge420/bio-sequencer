@@ -1,5 +1,7 @@
 import React from "react";
 import { useState } from "react";
+import '../utilities/showError'
+import showError from "../utilities/showError";
 
 export default function Input({ setSubmitted, setData }) {
     const [seqType, setSeqType] = useState('DNA')
@@ -13,7 +15,17 @@ export default function Input({ setSubmitted, setData }) {
     console.log("API_URL in Input.jsx:", API_URL);
     
     const handleUpload = (file) => {
-        
+        if (file.size > MAX_BYTES) {
+            showError(413)
+            return
+        }
+
+        const ext = file.name.split('.').pop().toLowerCase()
+
+        if (!ALLOWED_EXTENSIONS.includes(`.${ext}`)){
+            showError(422)
+            return
+        }
 
         const form = new FormData()
         form.append('file', file)
