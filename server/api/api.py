@@ -32,9 +32,9 @@ def analyze(
     logger.info(f"Received file: {file.filename} for analysis as {seq_type}")
 
     MAX_BYTES = 5000000 
-
+    
     text = stream_file(file, MAX_BYTES)
-
+    
     return {
         "message": "This is a placeholder response from the /analyse endpoint."
     }   
