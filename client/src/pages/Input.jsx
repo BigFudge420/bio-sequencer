@@ -1,13 +1,16 @@
 import React from "react";
 import { useState } from "react";
 import '../utilities/showError'
-import showError from "../utilities/showError";
+import showError from "../utilities/showError"
+import validateFile from "../utilities/validateFile"
+import setPreview from "../utilities/setPreview"
 
 export default function Input({ setSubmitted, setData }) {
     const [seqType, setSeqType] = useState('DNA')
     const [formData, setFormData] = useState(null)
     const [previewData, setPreviewData] = useState(null)
     const [headerData, setHeaderData] = useState(null)
+    const [isSubmitted, setIsSubmitted] = useState(false)
 
     const API_URL = import.meta.env.VITE_API_URL
     const MAX_BYTES = 5000000
@@ -16,26 +19,10 @@ export default function Input({ setSubmitted, setData }) {
     console.log("import.meta.env in Input.jsx:", import.meta.env);
     console.log("API_URL in Input.jsx:", API_URL);
     
-    const handleUpload = async (file) => {
-        if (file.size > MAX_BYTES) {
-            showError(413)
-            return
-        }
+    const handleUpload =  (file) => {
+        validateFile(file, ALLOWED_EXTENSIONS, MAX_BYTES)
 
-        const ext = file.name.split('.').pop().toLowerCase()
-
-        if (!ALLOWED_EXTENSIONS.includes(`.${ext}`)){
-            showError(422)
-            return
-        }   
-
-        const text = await file.slice(0, 160).text()
-        const lines = text.split('\n')
-        const header = lines.find(line => line.startsWith('>')) || 'SEQ_01'
-        const preview = lines.filter(line => !line.startsWith('>')).join('')
-
-        setPreviewData(preview)
-        setHeaderData(header)
+        setPreview(file, setPreviewData, setHeaderData)
 
         const form = new FormData()
         form.append('file', file)
@@ -44,6 +31,8 @@ export default function Input({ setSubmitted, setData }) {
     }
 
     const fetchData = async () => {
+        setIsSubmitted(true)
+
         try {
             const res = await fetch(`${API_URL}/analyse`, {
                 method: 'POST',
@@ -51,14 +40,18 @@ export default function Input({ setSubmitted, setData }) {
             })
 
             if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
+                showError(res.status)
             }
     
             const data = await res.json()
             setData(data)
+            setIsSubmitted(false)
             setSubmitted(true)
+
+            console.log('Response data: ', data)
         }
         catch (err) {
+            setIsSubmitted(false)
             console.error('Fetch failed: ', err)
         }
 
@@ -98,6 +91,7 @@ export default function Input({ setSubmitted, setData }) {
             </div>
             <button 
                 className="submit-btn"
+                disabled={isSubmitted || !formData}
                 onClick={() => fetchData()}
             >
                 Analyse
