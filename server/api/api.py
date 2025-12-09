@@ -25,9 +25,11 @@ async def analyze(
     ) -> dict:
 
     if seq_type not in SEQ_TYPES:
+        logger.error(f"Invalid seq_type provided: {seq_type}")
         raise HTTPException(status_code=400, detail=f"Invalid seq_type. Must be one of {SEQ_TYPES}")
     
     if not file.filename:
+        logger.error("No file uploaded.")
         raise HTTPException(status_code=400, detail="No file uploaded.")
 
     logger.info(f"Received file: {file.filename} for analysis as {seq_type}")
@@ -36,9 +38,29 @@ async def analyze(
     
     text = await stream_file(file, MAX_BYTES)
 
-    result = parse_text(text, logger)
-    
-    return result
+    parsed = parse_text(text, logger)
+
+    warnings = []
+    if seq_type == 'DNA' and 'U' in parsed['sequence']:
+        parsed['sequence'] = parsed['sequence'].replace('U', 'T')
+        warnings.append("Warning: Uracil (U) found in DNA sequence - converted to Thymine (T).")
+
+    logger.info('Creating BioSeq object')
+    bioseq_obj = BioSeq(seq=parsed['sequence'], label=parsed['header'], seq_type=seq_type)
+
+    result = bioseq_obj.analyze_seq()
+    result['warnings'] = warnings
+
+    return {
+        'ok' : True,
+        'count' : 1,
+        'result' : {
+            'header': parsed['header'],
+            'sequence': result['sequence'],
+            'orfs': result['orfs'],
+            'warnings': result['warnings']
+        }
+    }
 
 
 

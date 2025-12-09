@@ -12,6 +12,7 @@ async def stream_file(file: UploadFile, max_bytes: int, logger: Optional[logging
     while chunk := await file.read(64000):
         total += len(chunk)
         if total > max_bytes:
+            logger.error(f"File size exceeds maximum limit of {max_bytes} bytes.")
             raise HTTPException(status_code=413, detail="File too large.")
         buffer.append(chunk)
 
@@ -23,6 +24,7 @@ async def stream_file(file: UploadFile, max_bytes: int, logger: Optional[logging
         try:
             text = bytes.decode('latin-1', errors='strict')
         except UnicodeDecodeError:
+            logger.error("Unsupported file encoding. Use UTF-8 or Latin-1.")
             raise HTTPException(status_code=400, detail="Unsupported file encoding. Use UTF-8 or Latin-1.")
 
     if logger:

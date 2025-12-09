@@ -45,7 +45,7 @@ export default function Input({ setSubmitted, setData }) {
             }
     
             const data = await res.json()
-            setData(data)
+            setData(data.result)
             setIsSubmitted(false)
             setSubmitted(true)
 
