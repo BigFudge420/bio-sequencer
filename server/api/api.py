@@ -1,6 +1,5 @@
-from fastapi import FastAPI # type: ignore
+from fastapi import FastAPI, HTTPException, File, UploadFile, Form  # type: ignore
 from fastapi.middleware.cors import CORSMiddleware  # type: ignore
-from pydantic import BaseModel # type: ignore
 from logic.bio_seq import BioSeq
 
 app = FastAPI()
@@ -12,16 +11,17 @@ app.add_middleware(
     allow_headers=['*']
 )
 
-class AnalysisReq(BaseModel):
-    seq : str
-    seq_type : str
-    label : str
-
 @app.post('/analyse')
-def analyze(req : AnalysisReq) -> dict:
-    obj = BioSeq(seq=req.seq, label=req.label, seq_type=req.seq_type)
-    
-    return obj.analyze_seq()
+def analyze(
+    file : UploadFile = File(...),
+    seq_type: str = Form('DNA') 
+    ) -> dict:
+
+    print(f"Received file: {file.filename} of type {seq_type}")
+
+    return {
+        "message": "This is a placeholder response from the /analyse endpoint."
+    }   
 
 
 
