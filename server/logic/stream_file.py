@@ -1,23 +1,24 @@
 from fastapi import UploadFile, HTTPException # type: ignore
 from typing import Optional
+from Bio import SeqIO  # type: ignore
+from io import StringIO
 import logging
 
-async def stream_file(file: UploadFile, max_bytes: int, logger: Optional[logging.Logger] = None) -> str:
+async def stream_file(file: UploadFile, logger: Optional[logging.Logger] = None) -> SeqIO.SeqRecord:
     logger = logger or logging.getLogger("bioseq_logger")
-    logger.info(f"Starting to stream file: {file.filename} with max size {max_bytes} bytes.")
+    logger.info(f"Starting to stream file: {file.filename} with size {file.size} bytes.")
 
     total = 0
     buffer = []
 
     while chunk := await file.read(64000):
         total += len(chunk)
-        if total > max_bytes:
-            logger.error(f"File size exceeds maximum limit of {max_bytes} bytes.")
-            raise HTTPException(status_code=413, detail="File too large.")
         buffer.append(chunk)
 
     bytes = b''.join(buffer)
+    logger.info(f"Finished reading file: {file.filename}. Total bytes read: {total}.")
 
+    logger.info("Attempting to decode file content.")
     try:
         text = bytes.decode('utf-8', errors='strict')
     except UnicodeDecodeError:
@@ -27,7 +28,11 @@ async def stream_file(file: UploadFile, max_bytes: int, logger: Optional[logging
             logger.error("Unsupported file encoding. Use UTF-8 or Latin-1.")
             raise HTTPException(status_code=400, detail="Unsupported file encoding. Use UTF-8 or Latin-1.")
 
-    if logger:
-        logger.info(f"File streamed successfully. Length of text: {len(text)} characters.")    
-      
-    return text
+    text_io = StringIO(text)
+    try:
+        records = list(SeqIO.parse(text_io,  'fasta'))
+        if records:
+            logger.info(f"File streamed and parsed successfully as FASTA with {len(records)} records.")
+            return records[0] # Return the first record for simplicity
+    except Exception as e:
+        logger.warning(f"Failed to parse as FASTA: {e}")

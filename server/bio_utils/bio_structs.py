@@ -3,7 +3,7 @@ SEQ_TYPES = ["DNA", "RNA", "AA"]
 ELEMENTS = {
     "DNA" : ["A", "G", "C", "T"],
     "RNA" : ["A", "G", "C", "U"],
-    "AA" : ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y", "_"]
+    "AA" : ["A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y", '*']
 }
 
 DNA_Codons = {
@@ -28,7 +28,7 @@ DNA_Codons = {
     "GTT": "V", "GTC": "V", "GTA": "V", "GTG": "V",
     "TGG": "W",
     "TAT": "Y", "TAC": "Y",
-    "TAA": "_", "TAG": "_", "TGA": "_"
+    "TAA": "*", "TAG": "*", "TGA": "*"
 }
 
 RNA_Codons = {
@@ -53,5 +53,5 @@ RNA_Codons = {
     "GUU": "V", "GUC": "V", "GUA": "V", "GUG": "V",
     "UGG": "W",
     "UAU": "Y", "UAC": "Y",
-    "UAA": "_", "UAG": "_", "UGA": "_"
+    "UAA": "*", "UAG": "*", "UGA": "*"
 }

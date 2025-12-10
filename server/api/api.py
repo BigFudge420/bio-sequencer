@@ -5,6 +5,8 @@ from bio_utils.bio_seq import BioSeq
 from bio_utils.bio_structs import SEQ_TYPES
 from logic.stream_file import stream_file
 from logic.parse_text import parse_text
+from logic.sanitize import sanitize
+from Bio import SeqIO  # type: ignore
 import logging
 
 app = FastAPI()
@@ -32,14 +34,18 @@ async def analyze(
         logger.error("No file uploaded.")
         raise HTTPException(status_code=400, detail="No file uploaded.")
 
-    logger.info(f"Received file: {file.filename} for analysis as {seq_type}")
+    MAX_BYTES = 5000000
 
-    MAX_BYTES = 5000000 
-    
-    text = await stream_file(file, MAX_BYTES)
+    if file.size and file.size > MAX_BYTES:
+        logger.error(f"Uploaded file size {file.size} exceeds maximum limit of {MAX_BYTES} bytes.")
+        raise HTTPException(status_code=413, detail="File too large.")
 
-    parsed = parse_text(text, logger)
+    logger.info(f"Received file: {file.filename} for analysis as {seq_type}") 
 
+    record = await stream_file(file, logger=logger)
+    parsed = {'sequence': str(record.seq).upper(), 'header': sanitize(record.id, logger=logger)}
+
+    logger.info('Checking for warnings in sequence')
     warnings = []
     if seq_type == 'DNA' and 'U' in parsed['sequence']:
         parsed['sequence'] = parsed['sequence'].replace('U', 'T')

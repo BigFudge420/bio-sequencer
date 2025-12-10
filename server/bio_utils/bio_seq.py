@@ -3,6 +3,8 @@ from random import choice
 from collections import Counter
 from bio_utils.orf import ORF
 from bio_utils.bio_structs import *
+from fastapi import HTTPException # type: ignore
+from Bio.Seq import Seq  # type: ignore
 
 @dataclass
 class BioSeq:
@@ -16,10 +18,12 @@ class BioSeq:
         self.seq_type = self.seq_type.upper()
 
         if self.seq_type not in ('DNA', 'RNA', 'AA'):
-            raise ValueError(f'{self.seq_type} is not a valid sequence')
+            raise HTTPException(status_code=400, detail='seq_type must be one of DNA, RNA, or AA')
 
         self.is_valid = self.validate()
-        assert self.is_valid, f'Given sequence is not a valid {self.seq_type} sequence.'
+
+        if not self.is_valid:
+            raise HTTPException(status_code=400, detail=f'Given sequence is not a valid {self.seq_type} sequence.')
 
     def __len__(self) -> int:
         return len(self.seq)
@@ -42,21 +46,20 @@ class BioSeq:
         return dict(Counter(self.seq))
 
     def transcribe(self) -> 'BioSeq':
-        return BioSeq(seq= self.seq.replace('T','U'), label= self.label + '_RNA', seq_type= 'RNA')
+        if self.seq_type != 'DNA':
+            raise HTTPException(status_code=400, detail='Only DNA sequences can be transcribed to RNA')
+        
+        protein = Seq(self.seq).transcribe()
+
+        return BioSeq(seq= str(protein), label= self.label + '_RNA', seq_type= 'RNA')
 
     def rev_complement(self) -> 'BioSeq':
-        default_map = str.maketrans('', '')
+        if self.seq_type not in ('DNA', 'RNA'):
+            raise HTTPException(status_code=400, detail='Only DNA or RNA sequences have reverse complements')
+        
+        revc_seq = Seq(self.seq).reverse_complement()
 
-        if self.seq_type == 'DNA':
-            mapping = str.maketrans('ATCG', 'TAGC')
-        elif self.seq_type == 'RNA':
-            mapping = str.maketrans('AUCG', 'UAGC')
-        else:
-            mapping = default_map
-
-        revc_seq = self.seq.translate(mapping)[::-1]
-
-        return BioSeq(seq = revc_seq, label = self.label + '_REVC', seq_type = self.seq_type)
+        return BioSeq(seq = str(revc_seq), label = self.label + '_REVC', seq_type = self.seq_type)
 
     def gc_content(self, start : int = 0, stop : int = 0) -> float:
         if stop > start:
@@ -66,14 +69,14 @@ class BioSeq:
 
         length = len(seq)
         if length == 0:
-            raise ValueError('Sequence is empty')
+            raise HTTPException(status_code=400, detail='Cannot calculate GC content of an empty sequence')
 
         gc = seq.count('G') + seq.count('C')
         return gc / length * 100
 
     def gc_content_sub(self, k : int = 20) -> list[float]:
         if k <= 0:
-            raise ValueError('k must be greater than 0')
+            raise HTTPException(status_code=400, detail='k must be a positive integer')
 
         return [
             self.gc_content(start=i, stop=i+k)
@@ -81,20 +84,12 @@ class BioSeq:
         ]
 
     def translate(self, init_pos : int = 0) -> 'BioSeq':
-        if self.seq_type == 'DNA':
-            prot_seq = ''.join([DNA_Codons.get(self.seq[i : i + 3], '?')
-                            for i in range(init_pos, len(self.seq) - 2, 3)
-                            if len(self.seq[i : i + 3]) == 3]
-                           )
-        elif self.seq_type == 'RNA':
-            prot_seq = ''.join([RNA_Codons.get(self.seq[i: i + 3], '?')
-                            for i in range(init_pos, len(self.seq) - 2, 3)
-                            if len(self.seq[i: i + 3]) == 3]
-                           )
-        else:
-            raise ValueError(f'Sequence must be a valid DNA or RNA sequence')
+        if self.seq_type not in ('DNA', 'RNA'):
+            raise HTTPException(status_code=400, detail='Sequence must be a valid DNA or RNA sequence')
 
-        return BioSeq(seq = prot_seq, label = self.label + '_aa_seq', seq_type = 'AA')
+        prot_seq = Seq(self.seq[init_pos:]).translate(to_stop=False)
+
+        return BioSeq(seq = str(prot_seq), label = self.label + '_aa_seq', seq_type = 'AA')
 
     def codon_usage(self, aa = 'L') -> dict[str, float]:
         if self.seq_type == 'DNA':
@@ -109,7 +104,7 @@ class BioSeq:
                       ]
 
         else:
-            raise ValueError(f'Sequence must be a valid DNA or RNA sequence')
+            raise HTTPException(status_code=400, detail='Sequence must be a valid DNA or RNA sequence')
 
         counts = dict(Counter(codons))
         total = sum(counts.values())
@@ -141,7 +136,7 @@ class BioSeq:
             if aa == 'M':
                 currents.append({'start': i, 'chars': ['M']})
 
-            if aa == '_' and currents:
+            if aa == '*' and currents:
                 for c in currents:
                     protein = ''.join(c['chars'])
                     orfs.append(ORF(
