@@ -18,8 +18,8 @@ export default function Input({ setSubmitted, setData }) {
 
     console.log("import.meta.env in Input.jsx:", import.meta.env);
     console.log("API_URL in Input.jsx:", API_URL);
-    
-    const handleUpload =  (file) => {
+
+    const handleUpload = (file) => {
         validateFile(file, ALLOWED_EXTENSIONS, MAX_BYTES)
 
         setPreview(file, setPreviewData, setHeaderData)
@@ -36,14 +36,14 @@ export default function Input({ setSubmitted, setData }) {
         try {
             const res = await fetch(`${API_URL}/analyse`, {
                 method: 'POST',
-                body : formData
+                body: formData
             })
 
             if (!res.ok) {
-                const err = await res.json() 
+                const err = await res.json()
                 showError(res.status, err.detail)
             }
-    
+
             const data = await res.json()
             setData(data.result)
             setIsSubmitted(false)
@@ -60,7 +60,7 @@ export default function Input({ setSubmitted, setData }) {
 
     return (
         <div className="form">
-            <h2>Enter the details of your sequence</h2>
+            <h2 className="bg-black text-white">Enter the details of your sequence</h2>
             {previewData && (
                 <div>
                     <p>PREVIEW</p>
@@ -70,19 +70,19 @@ export default function Input({ setSubmitted, setData }) {
             )}
             <div className="input-container">
                 <label htmlFor="file">Choose a file to analyze</label>
-                <input 
-                    id="file" 
-                    className="file input" 
+                <input
+                    id="file"
+                    className="file input"
                     type="file"
                     accept=".fa,.fasta,.txt"
                     onChange={(e) => handleUpload(e.target.files[0])}
-                />  
+                />
             </div>
             <div className="input-container">
                 <label htmlFor="seq-type">Enter a sequence type</label>
-                <select 
-                    name="seq-type" 
-                    id="seq-type" 
+                <select
+                    name="seq-type"
+                    id="seq-type"
                     className="type-input input"
                     onChange={(e) => setSeqType(e.target.value)}
                 >
@@ -90,7 +90,7 @@ export default function Input({ setSubmitted, setData }) {
                     <option value="RNA">RNA</option>
                 </select>
             </div>
-            <button 
+            <button
                 className="submit-btn"
                 disabled={isSubmitted || !formData}
                 onClick={() => fetchData()}

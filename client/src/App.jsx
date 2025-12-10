@@ -2,7 +2,6 @@ import React from "react";
 import { useState, useEffect } from "react";
 import Input from "./pages/Input";
 import Data from "./pages/Data";
-import './App.css'
 
 export default function App(){
     const [data, setData] = useState({})
