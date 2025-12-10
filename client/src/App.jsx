@@ -13,8 +13,7 @@ export default function App(){
         <div className="min-h-screen min-w-screen">
             
             <DNABackground
-                isActive={active}
-                particleCount={400}        
+                particleCount={200}        
                 maxConnectDist={140}     
             />
             
