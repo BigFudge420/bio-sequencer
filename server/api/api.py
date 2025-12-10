@@ -3,8 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware  # type: ignore
 from typing import Optional
 from bio_utils.bio_seq import BioSeq
 from bio_utils.bio_structs import SEQ_TYPES
-from logic.stream_file import stream_file
-from logic.parse_text import parse_text
+from server.logic.stream_and_parse_file import stream_and_parse_file
 from logic.sanitize import sanitize
 from Bio import SeqIO  # type: ignore
 import logging
@@ -42,7 +41,7 @@ async def analyze(
 
     logger.info(f"Received file: {file.filename} for analysis as {seq_type}") 
 
-    record = await stream_file(file, logger=logger)
+    record = await stream_and_parse_file(file, logger=logger)
     parsed = {'sequence': str(record.seq).upper(), 'header': sanitize(record.id, logger=logger)}
 
     logger.info('Checking for warnings in sequence')

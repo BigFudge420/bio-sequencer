@@ -4,7 +4,7 @@ from Bio import SeqIO  # type: ignore
 from io import StringIO
 import logging
 
-async def stream_file(file: UploadFile, logger: Optional[logging.Logger] = None) -> SeqIO.SeqRecord:
+async def stream_and_parse_file(file: UploadFile, logger: Optional[logging.Logger] = None) -> SeqIO.SeqRecord:
     logger = logger or logging.getLogger("bioseq_logger")
     logger.info(f"Starting to stream file: {file.filename} with size {file.size} bytes.")
 
@@ -28,6 +28,7 @@ async def stream_file(file: UploadFile, logger: Optional[logging.Logger] = None)
             logger.error("Unsupported file encoding. Use UTF-8 or Latin-1.")
             raise HTTPException(status_code=400, detail="Unsupported file encoding. Use UTF-8 or Latin-1.")
 
+    logger.info("File decoded successfully. Attempting to parse as FASTA.")
     text_io = StringIO(text)
     try:
         records = list(SeqIO.parse(text_io,  'fasta'))
