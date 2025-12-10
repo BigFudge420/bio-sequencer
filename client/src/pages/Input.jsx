@@ -5,7 +5,7 @@ import showError from "../utilities/showError"
 import validateFile from "../utilities/validateFile"
 import setPreview from "../utilities/setPreview"
 import {motion} from 'motion/react'
-import Dna from '../svgs/Dna'
+import Header from "../components/Header";
 
 export default function Input({ setSubmitted, setData }) {
     const [seqType, setSeqType] = useState('DNA')
@@ -68,14 +68,12 @@ export default function Input({ setSubmitted, setData }) {
             className="text-white flex min-h-screen"
         >
 
-            <div className="grid grid-cols-5 grid-rows-2 gap-4 w-full h-screen text-center">
-                <div className="col-span-5 gap-5 flex flex-col items-center p-[2.5rem]">
-                   <Dna className="shadow-[2px_2px_35px_8px_rgba(30,200,255,0.4)] rounded-xl" />
-                    <strong className="text-xl text-[#005cff]">Ribosome: Next-Gen Sequencer</strong>
-                    <p className="text-2xl text-[#90A1B9]">Advanced genomic data processing platform</p>
+            <div className="grid grid-cols-6 grid-rows-4 gap-4 w-full h-screen text-center">
+                <div className="col-span-6 flex flex-col items-center">
+                    <Header />
                 </div>
-                <div className="col-span-3 row-start-2">2</div>
-                <div className="col-span-2 col-start-4 row-start-2">3</div>
+                <div className="col-span-4 row-span-3 row-start-2">2</div>
+                <div className="col-span-2 row-span-3 col-start-5 row-start-2">3</div>
             </div>
     
         </motion.div> )
