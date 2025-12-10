@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "motion": "^12.23.25",
     "postcss-preset-env": "^10.5.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1"
