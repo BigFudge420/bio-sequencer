@@ -1,16 +1,17 @@
 import { motion } from "motion/react"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import Upload from "../svgs/Upload"
 import validateFile from "../utilities/validateFile"
 import setPreview from "../utilities/setPreview"
 
-export default function FileUploader({fetchData, setFormData, setPreviewData, setHeaderData}) {
+export default function FileUploader({fetchData, appendToForm, setPreviewData, setHeaderData}) {
     const [seqType, setSeqType] = useState('DNA')
     const [btnHover, setBtnHover] = useState(false)
     const [isFull, setIsFull] = useState(false)
     const EXTENSIONS = ['.FASTA', '.FA', '.TXT']
     const MAX_BYTES = 5000000
     const ALLOWED_EXTENSIONS = ['.fasta', '.fa', '.txt']
+    const inputRef = useRef()
 
     const handleUpload = (files) => {
         let file = files[0]
@@ -18,10 +19,8 @@ export default function FileUploader({fetchData, setFormData, setPreviewData, se
         validateFile(file, ALLOWED_EXTENSIONS, MAX_BYTES)
         setPreview(file, setPreviewData, setHeaderData)
 
-        const form = new FormData()
-        form.append('file', file)
-        form.append('seq_type', 'DNA')
-        setFormData(form)
+        appendToForm('file', file)
+        appendToForm('seq_type', 'DNA')
 
         setIsFull(true)
     }
@@ -55,7 +54,7 @@ export default function FileUploader({fetchData, setFormData, setPreviewData, se
                
                 <p className="max-w-[25rem] text-gray-400">Drag and drop genomic data files or click to browse your system</p>
 
-                <input type="file" id="file-upload" accept=".fasta, .fa, .txt" onChange={(e) => handleUpload(e.target.files)} hidden/>
+                <input type="file" ref={inputRef} id="file-upload" accept=".fasta, .fa, .txt" onChange={(e) => handleUpload(e.target.files)} hidden/>
 
                 <div className="flex gap-2">
                     
@@ -64,7 +63,7 @@ export default function FileUploader({fetchData, setFormData, setPreviewData, se
                     whileHover={isFull ? {} : {scale: 1.05}} whileTap={isFull ? {} : {scale : 0.95}} disabled={isFull} type="button"
                     onClick={(e) => {
                         e.preventDefault()
-                        document.getElementById('file-upload')?.click()
+                        inputRef.current?.click()
                     }}>
                         Select Files
                     </motion.button>

@@ -1,22 +1,26 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useState } from "react";
 import showError from "../utilities/showError"
 import Header from "../components/Header";
 import FileUploader from "../components/FileUploader";
 
 export default function Input({ setSubmitted, setData }) {
-    const [formData, setFormData] = useState(null)
     const [previewData, setPreviewData] = useState(null)
     const [headerData, setHeaderData] = useState(null)
+    const formDataRef = useRef(new FormData()) 
 
     const API_URL = import.meta.env.VITE_API_URL
+
+    const appendToForm = (k, v) => {
+        formDataRef.current.append(k, v)
+    }
     
     const fetchData = async () => {
         
         try {
             const res = await fetch(`${API_URL}/analyse`, {
                 method: 'POST',
-                body: formData
+                body: formDataRef.current
             })
             
             if (!res.ok) {
@@ -39,7 +43,7 @@ export default function Input({ setSubmitted, setData }) {
     return (
         <div className="text-white flex min-h-screen min-w-screen flex-col items-center">
             <Header />
-            <FileUploader fetchData={fetchData} setFormData={setFormData} setPreviewData={setPreviewData} setHeaderData={setHeaderData}/>
+            <FileUploader fetchData={fetchData} appendToForm={appendToForm} setPreviewData={setPreviewData} setHeaderData={setHeaderData}/>
         </div> 
         )
 }
