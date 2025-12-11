@@ -1,6 +1,7 @@
 import { motion } from "motion/react"
 import { useRef, useState } from "react"
 import Upload from "../svgs/Upload"
+import Sparkles from "../svgs/Sparkles"
 import validateFile from "../utilities/validateFile"
 import setPreview from "../utilities/setPreview"
 
@@ -8,21 +9,55 @@ export default function FileUploader({fetchData, appendToForm, setPreviewData, s
     const [seqType, setSeqType] = useState('DNA')
     const [btnHover, setBtnHover] = useState(false)
     const [isFull, setIsFull] = useState(false)
+    const [isDragging, setIsDragging] = useState(false)
     const EXTENSIONS = ['.FASTA', '.FA', '.TXT']
     const MAX_BYTES = 5000000
     const ALLOWED_EXTENSIONS = ['.fasta', '.fa', '.txt']
     const inputRef = useRef()
 
     const handleUpload = (files) => {
-        let file = files[0]
+        let file = files[0] 
 
         validateFile(file, ALLOWED_EXTENSIONS, MAX_BYTES)
         setPreview(file, setPreviewData, setHeaderData)
 
+        setIsFull(true)
+        appendToForm('file', file)
+        appendToForm('seq_type', 'DNA')
+    }  
+
+    const handleDragEnter = (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        setIsDragging(true)
+    }
+
+    const handleDragLeave = (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        setIsDragging(false)        
+    } 
+
+    const handleDragOver = (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        e.dataTransfer.dropEffect = 'copy'
+    } 
+
+    const handleDrop = (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        let file = e.dataTransfer.files[0]
+
+        setIsFull(true)
         appendToForm('file', file)
         appendToForm('seq_type', 'DNA')
 
-        setIsFull(true)
+
     }
 
     return (
@@ -32,22 +67,27 @@ export default function FileUploader({fetchData, appendToForm, setPreviewData, s
             transition={{ duration: 0.5 }}
             className=" group"
         >   
-            <div className="absolute min-w-[18.75rem] w-[62.5rem] 
-            min-h-[9.37rem] h-[31.25rem] opacity-0 group-hover:opacity-50 bg-gradient-to-r 
+            <div className={`absolute min-w-[18.75rem] w-[62.5rem] 
+            min-h-[9.37rem] h-[31.25rem] ${isDragging ? 'opacity-50' : 'opacity-0'} group-hover:opacity-50 bg-gradient-to-r 
             from-cyan-500 via-blue-500 to-purple-600 rounded-3xl blur-xl transition-opacity 
-            duration-500">            
+            duration-500`}>            
             </div>
             
-            <div className="min-w-[18.75rem] flex flex-col text-center
+            <motion.div className="min-w-[18.75rem] flex flex-col text-center
             gap-7 items-center w-[62.5rem] min-h-[9.37rem] h-[31.25rem] bg-white/5 
             backdrop-blur-xl border-2 border-white/10 hover:border-white/20 
-            rounded-2xl p-12 transition-all duration-300">
+            rounded-2xl p-12 transition-all duration-300"
+            onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}
+            animate={isDragging ? {scale : 1.05} : {scale : 1}}>
                
                 <motion.div
                 onHoverStart={() => setBtnHover(true)} onHoverEnd={() => setBtnHover(false)} animate={ btnHover? {scale: [1, 1.1, 1], rotate: [0, 5, -5, 0]} : {scale: 1, rotate: 0}}
                 >               
-                    <Upload className={"shadow-[2px_2px_60px_5px_rgba(30,200,255,0.5)] rounded-xl"}/>
-                
+                    {isDragging
+                    ? <Sparkles className={`shadow-[2px_2px_60px_5px_rgba(30,200,255,0.5)] rounded-xl `} />
+                    : <Upload className={"shadow-[2px_2px_60px_5px_rgba(30,200,255,0.5)] rounded-xl"}/>
+                    }
+                    
                 </motion.div>
 
                 <p className="text-xl text-white/90">Drop Your Sequence Files</p>
@@ -67,13 +107,13 @@ export default function FileUploader({fetchData, appendToForm, setPreviewData, s
                     }}>
                         Select Files
                     </motion.button>
-
+{/* 
                     <motion.button className={`w-[10rem] h-[3rem] bg-gradient-to-r from-fuchsia-500 to 
                     to-purple-600 rounded-xl font-bold ${!isFull ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-70'}`}
                     whileHover={!isFull ? {} : {scale: 1.05}} whileTap={!isFull ? {} : {scale : 0.95}} disabled={!isFull} type="button"
                     onClick={() => fetchData()}>
                         Upload Files
-                    </motion.button>
+                    </motion.button> */}
 
 
                 </div>
@@ -86,7 +126,7 @@ export default function FileUploader({fetchData, appendToForm, setPreviewData, s
                     ))}
                 </div>
             
-            </div>
+            </motion.div>
         
         </motion.div>
     )

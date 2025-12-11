@@ -43,7 +43,7 @@ export default function Input({ setSubmitted, setData }) {
     return (
         <div className="text-white flex min-h-screen min-w-screen flex-col items-center">
             <Header />
-            <FileUploader fetchData={fetchData} appendToForm={appendToForm} setPreviewData={setPreviewData} setHeaderData={setHeaderData}/>
+            <FileUploader fetchData={fetchData} appendToForm={appendToForm} setPreviewData={setPreviewData} setHeaderData={setHeaderData} />
         </div> 
         )
 }
