@@ -13,7 +13,7 @@ export default function Data({data}) {
     const orf_list = data.orfs
 
     return (
-        <div>
+        <div className="text-white">
             <h2>Analysis</h2>
             <div>
                <h3>{label}</h3>
