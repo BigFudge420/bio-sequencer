@@ -71,7 +71,7 @@ export default function FileUploader({fetchData, setFormData, setPreviewData, se
 
                     <motion.button className={`w-[10rem] h-[3rem] bg-gradient-to-r from-fuchsia-500 to 
                     to-purple-600 rounded-xl font-bold ${!isFull ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-70'}`}
-                    whileHover={!isFull ? {} : {scale: 1.05}} whileTap={!isFull ? {} : {scale : 0.95}} disabled={isUploading} type="button"
+                    whileHover={!isFull ? {} : {scale: 1.05}} whileTap={!isFull ? {} : {scale : 0.95}} disabled={!isFull} type="button"
                     onClick={() => fetchData()}>
                         Upload Files
                     </motion.button>
