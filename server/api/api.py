@@ -46,8 +46,7 @@ async def analyze(
 
     logger.info(f"Received file: {file.filename} for analysis as {seq_type}") 
 
-    record = await stream_and_parse_file(file, logger=logger)
-    parsed = {'sequence': str(record['seq']).upper(), 'header': sanitize(record['id'], logger=logger)}
+    parsed = await stream_and_parse_file(file, logger=logger)
 
     logger.info('Checking for warnings in sequence')
     warnings = []
@@ -56,8 +55,13 @@ async def analyze(
         warnings.append("Warning: Uracil (U) found in DNA sequence - converted to Thymine (T).")
 
     logger.info('Creating BioSeq object')
-    bioseq_obj = BioSeq(seq=parsed['sequence'], label=parsed['header'], seq_type=seq_type)
-
+    try:
+        bioseq_obj = BioSeq(seq=parsed['sequence'], label=parsed['header'], seq_type=seq_type)
+        logger.info('BioSeq object created succesfully')
+    
+    except Exception as e:
+        logger.error('Failed to create BioSeq object:', e)
+    
     result = bioseq_obj.analyze_seq()
     result['warnings'] = warnings
 

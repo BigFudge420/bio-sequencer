@@ -27,7 +27,7 @@ class ORF:
             "protein": self.protein,
             "start": self.start,
             "end": self.end,
-            "length" : self.protein,
+            "length" : len(self.protein),
             "frame" : getattr(self, "frame_label", None),
             "is_valid" : self.is_valid
         }

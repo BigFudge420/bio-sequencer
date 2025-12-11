@@ -4,7 +4,7 @@ from Bio import SeqIO  # type: ignore
 from io import StringIO
 import logging
 
-async def stream_and_parse_file(file: UploadFile, logger: Optional[logging.Logger] = None) -> SeqIO.SeqRecord:
+async def stream_and_parse_file(file: UploadFile, logger: Optional[logging.Logger] = None):
     logger = logger or logging.getLogger("bioseq_logger")
     logger.info(f"Starting to stream file: {file.filename} with size {file.size} bytes.")
 
@@ -36,7 +36,7 @@ async def stream_and_parse_file(file: UploadFile, logger: Optional[logging.Logge
         records = list(SeqIO.parse(text_io,  'fasta'))
         if records and len(records) > 0:
             logger.info(f"File streamed and parsed successfully as FASTA with {len(records)} records.")
-            return dict(records[0]) # Return the first record for simplicity
+            return {'sequence' : str(records[0].seq), 'header' : records[0].id} # Return the first record for simplicity
         
         else:
             logger.info("No FASTA records found, returning raw text as single sequence.")
