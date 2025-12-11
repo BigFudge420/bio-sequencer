@@ -41,7 +41,7 @@ async def stream_and_parse_file(file: UploadFile, logger: Optional[logging.Logge
         else:
             logger.info("No FASTA records found, returning raw text as single sequence.")
             text = text.replace('\n', '').replace('\r', '')   
-            return {'seq' : text, 'id': 'SEQ_01'}  
+            return {'sequence' : text, 'header': 'SEQ_01'}  
     
     except Exception as e:
         logger.warning(f"Failed to parse as FASTA: {e}")
