@@ -1,9 +1,13 @@
 export default async function setPreview(file, setPreviewData, setHeaderData) {
+        const fileObj = file.fileObj
+        const fileId = file.fileId
         const text = await file.slice(0, 160).text()
         const lines = text.split('\n')
-        const header = lines.find(line => line.startsWith('>')) || 'SEQ_01'
-        const preview = lines.filter(line => !line.startsWith('>')).join('')
+        const headerText = lines.find(line => line.startsWith('>')) || 'SEQ_01'
+        const previewText = lines.filter(line => !line.startsWith('>')).join('')
+        const preview = {fileId, previewText}
+        const header = {fileId, headerText}
 
-        setPreviewData(preview)
-        setHeaderData(header)
+        setPreviewData((prev) => [...prev, preview])
+        setHeaderData((prev) => [...prev, header])
 }

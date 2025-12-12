@@ -5,8 +5,7 @@ import Sparkles from "../svgs/Sparkles"
 import validateFile from "../utilities/validateFile"
 import setPreview from "../utilities/setPreview"
 
-export default function FileUploader({fetchData, appendToForm, setPreviewData, setHeaderData}) {
-    const [seqType, setSeqType] = useState('DNA')
+export default function FileUploader({appendToForm, setPreviewData, setHeaderData, setSubmitted, setFiles}) {
     const [btnHover, setBtnHover] = useState(false)
     const [isFull, setIsFull] = useState(false)
     const [isDragging, setIsDragging] = useState(false)
@@ -15,15 +14,22 @@ export default function FileUploader({fetchData, appendToForm, setPreviewData, s
     const ALLOWED_EXTENSIONS = ['.fasta', '.fa', '.txt']
     const inputRef = useRef()
 
-    const handleUpload = (files) => {
-        let file = files[0] 
+    const handleUpload = (inputFiles) => {
 
-        validateFile(file, ALLOWED_EXTENSIONS, MAX_BYTES)
-        setPreview(file, setPreviewData, setHeaderData)
+        const selected = Array.from(inputFiles).map((file) => ({
+            fileId : crypto.randomUUID(),
+            fileObj : file
+        }))
 
-        setIsFull(true)
-        appendToForm('file', file)
-        appendToForm('seq_type', 'DNA')
+        setFiles(prev => [...prev, ...selected])
+
+        selected.forEach((file) => {
+            validateFile(file.fileObj, ALLOWED_EXTENSIONS, MAX_BYTES)
+            setPreview(file, setPreviewData, setHeaderData)
+            appendToForm('file', file.fileObj)
+        })
+
+        setSubmitted(true)
     }  
 
     const handleDragEnter = (e) => {
@@ -52,12 +58,11 @@ export default function FileUploader({fetchData, appendToForm, setPreviewData, s
         e.stopPropagation()
 
         let file = e.dataTransfer.files[0]
+        let obj = {fileId : crypto.randomUUID, fileObj : file}
 
-        setIsFull(true)
+        setSubmitted(true)
+        setFiles(prev => [...prev, obj])
         appendToForm('file', file)
-        appendToForm('seq_type', 'DNA')
-
-
     }
 
     return (
@@ -96,27 +101,16 @@ export default function FileUploader({fetchData, appendToForm, setPreviewData, s
 
                 <input type="file" ref={inputRef} id="file-upload" accept=".fasta, .fa, .txt" onChange={(e) => handleUpload(e.target.files)} hidden/>
 
-                <div className="flex gap-2">
                     
-                    <motion.button className={`w-[10rem] h-[3rem] bg-gradient-to-r from-cyan-500 to 
-                    to-blue-500 rounded-xl font-bold ${isFull ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-70'}`}
-                    whileHover={isFull ? {} : {scale: 1.05}} whileTap={isFull ? {} : {scale : 0.95}} disabled={isFull} type="button"
-                    onClick={(e) => {
-                        e.preventDefault()
-                        inputRef.current?.click()
-                    }}>
-                        Select Files
-                    </motion.button>
-{/* 
-                    <motion.button className={`w-[10rem] h-[3rem] bg-gradient-to-r from-fuchsia-500 to 
-                    to-purple-600 rounded-xl font-bold ${!isFull ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-70'}`}
-                    whileHover={!isFull ? {} : {scale: 1.05}} whileTap={!isFull ? {} : {scale : 0.95}} disabled={!isFull} type="button"
-                    onClick={() => fetchData()}>
-                        Upload Files
-                    </motion.button> */}
-
-
-                </div>
+                <motion.button className={`w-[10rem] h-[3rem] bg-gradient-to-r from-cyan-500 to 
+                to-blue-500 rounded-xl font-bold ${isFull ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-70'}`}
+                whileHover={isFull ? {} : {scale: 1.05}} whileTap={isFull ? {} : {scale : 0.95}} disabled={isFull} type="button"
+                onClick={(e) => {
+                    e.preventDefault()
+                    inputRef.current?.click()
+                }}>
+                    Select Files
+                </motion.button>
 
                 <div className="flex gap-3">
                     {EXTENSIONS.map((format) => (

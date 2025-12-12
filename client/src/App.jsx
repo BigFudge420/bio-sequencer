@@ -6,7 +6,7 @@ import DNABackground from "./components/DNABackground";
 
 export default function App(){
     const [data, setData] = useState({})
-    const [submitted, setSubmitted ] = useState(false)
+    const [resReceived, setResReceived ] = useState(false)
     const [active, setActive] = useState(true)
 
     return (
@@ -18,9 +18,9 @@ export default function App(){
             />
             
             {
-                submitted 
+                resReceived
                 ? <Data data={data}/> 
-                : <Input setData={setData} setSubmitted={setSubmitted}/>
+                : <Input setData={setData} setResReceived={setResReceived}/>
             }
         </div>
     )
