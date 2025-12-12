@@ -53,17 +53,20 @@ async def analyze(
     if seq_type == 'DNA' and 'U' in parsed['sequence']:
         parsed['sequence'] = parsed['sequence'].replace('U', 'T')
         warnings.append("Warning: Uracil (U) found in DNA sequence - converted to Thymine (T).")
+        logger.warning("Warning: Uracil (U) found in DNA sequence - converted to Thymine (T).")
+
 
     logger.info('Creating BioSeq object')
     try:
         bioseq_obj = BioSeq(seq=parsed['sequence'], label=parsed['header'], seq_type=seq_type)
-        logger.info('BioSeq object created succesfully')
+        logger.info(f'BioSeq object created succesfully: {seq_type}')
     
     except Exception as e:
         logger.error('Failed to create BioSeq object:', e)
     
     result = bioseq_obj.analyze_seq()
     result['warnings'] = warnings
+
 
     return {
         'ok' : True,

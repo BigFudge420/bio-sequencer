@@ -5,6 +5,9 @@ from bio_utils.orf import ORF
 from bio_utils.bio_structs import *
 from fastapi import HTTPException # type: ignore
 from Bio.Seq import Seq  # type: ignore
+import logging
+
+logger = logging.getLogger('bioseq_logger')
 
 @dataclass
 class BioSeq:
@@ -57,6 +60,11 @@ class BioSeq:
         if self.seq_type not in ('DNA', 'RNA'):
             raise HTTPException(status_code=400, detail='Only DNA or RNA sequences have reverse complements')
         
+        if self.seq_type == 'RNA':
+            revc_seq = Seq(self.seq).reverse_complement_rna()
+
+            return BioSeq(seq=str(revc_seq), label=self.label + '_REVC', seq_type=self.seq_type)
+        
         revc_seq = Seq(self.seq).reverse_complement()
 
         return BioSeq(seq = str(revc_seq), label = self.label + '_REVC', seq_type = self.seq_type)
@@ -84,10 +92,14 @@ class BioSeq:
         ]
 
     def translate(self, init_pos : int = 0) -> 'BioSeq':
+        logger.info('Translating')
+
         if self.seq_type not in ('DNA', 'RNA'):
             raise HTTPException(status_code=400, detail='Sequence must be a valid DNA or RNA sequence')
 
         prot_seq = Seq(self.seq[init_pos:]).translate(to_stop=False)
+
+        logger.info('Translated')
 
         return BioSeq(seq = str(prot_seq), label = self.label + '_aa_seq', seq_type = 'AA')
 
@@ -113,6 +125,8 @@ class BioSeq:
         return {codon: count/total for codon, count in  counts.items()}
 
     def get_reading_frames(self) -> list[tuple[str, 'BioSeq']]:
+        logger.info('Creating reading frames')
+
         f0 = ('+1', self.translate(init_pos=0))
         f1 = ('+2', self.translate(init_pos=1))
         f2 = ('+3', self.translate(init_pos=2))
@@ -122,9 +136,13 @@ class BioSeq:
         r1 = ('-2', rev.translate(init_pos=1))
         r2 = ('-3', rev.translate(init_pos=2))
 
+        logger.info('Created reading frames')
+
         return [f0, f1, f2, r0, r1, r2]
 
     def proteins_from_rf(self, aa_seq : str, frame_label : str) -> list['ORF']:
+        logger.info('Finding proteins')
+
         orfs = []
         currents = []
         orf_id = 1
@@ -149,9 +167,13 @@ class BioSeq:
                     orf_id += 1
                 currents = []
 
+        logger.info('Found all proteins')
+
         return orfs
 
     def all_prots_from_orfs(self, start: int = 0, end: int = 0, ordered : bool = False) -> list:
+        logger.info('Creating ORFS')
+
         if end > start:
             temp_seq = BioSeq(seq = self.seq[start:end], seq_type = self.seq_type)
             rfs = temp_seq.get_reading_frames()
@@ -164,11 +186,15 @@ class BioSeq:
             prots = self.proteins_from_rf(aa_seq = rf.seq, frame_label = frame_label)
             res.extend(prots)
 
+        logger.info('Created ORFS')
+
         if ordered:
             return sorted(res, key = len, reverse = True)
         return res
 
     def to_dict(self) -> dict:
+        logger.info(f'Converting {self.label} to dict')
+
         return {
             'label': self.label,
             'seq_type': self.seq_type,
