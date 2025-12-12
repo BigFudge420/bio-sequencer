@@ -4,7 +4,7 @@ from Bio import SeqIO  # type: ignore
 from io import StringIO
 import logging
 
-async def stream_and_parse_file(file: UploadFile, logger: Optional[logging.Logger] = None):
+async def stream_and_parse_file(file: UploadFile, logger: Optional[logging.Logger] = None) -> dict:
     logger = logger or logging.getLogger("bioseq_logger")
     logger.info(f"Starting to stream file: {file.filename} with size {file.size} bytes.")
 
