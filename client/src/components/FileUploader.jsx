@@ -5,14 +5,13 @@ import Sparkles from "../svgs/Sparkles"
 import validateFile from "../utilities/validateFile"
 import setPreview from "../utilities/setPreview"
 
-export default function FileUploader({appendToForm, setPreviewData, setHeaderData, setSubmitted, setFiles}) {
+export default function FileUploader({appendToForm, inputRef ,setPreviewData, setHeaderData, setSubmitted, setFiles}) {
     const [btnHover, setBtnHover] = useState(false)
     const [isFull, setIsFull] = useState(false)
     const [isDragging, setIsDragging] = useState(false)
     const EXTENSIONS = ['.FASTA', '.FA', '.TXT']
     const MAX_BYTES = 5000000
     const ALLOWED_EXTENSIONS = ['.fasta', '.fa', '.txt']
-    const inputRef = useRef()
 
     const handleUpload = (inputFiles) => {
 
@@ -58,7 +57,7 @@ export default function FileUploader({appendToForm, setPreviewData, setHeaderDat
         e.stopPropagation()
 
         let file = e.dataTransfer.files[0]
-        let obj = {fileId : crypto.randomUUID, fileObj : file}
+        let obj = {fileId : crypto.randomUUID(), fileObj : file}
 
         setSubmitted(true)
         setFiles(prev => [...prev, obj])

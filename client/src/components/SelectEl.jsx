@@ -17,9 +17,9 @@ export default function SelectEl({ appendToForm }) {
           ...base,
           backgroundColor: '#0f172a',
           borderColor: state.isFocused ? '#22d3ee' : '#1e293b',
-          marginLeft : '5rem',
           boxShadow: 'none',
           minHeight: 36,
+          minWidth: 100
         }),
         menu: (base) => ({
           ...base,

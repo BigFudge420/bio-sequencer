@@ -11,22 +11,23 @@ export default function Input({ setData, setResReceived }) {
     const [previewData, setPreviewData] = useState([])
     const [headerData, setHeaderData] = useState([])
     const [submitted, setSubmitted] = useState(false)
+    const [isUploading, setIsUploading] = useState(false)
     const [progress, setProgress] = useState(0)
     const [files, setFiles] = useState([])
+    const inputRef = useRef()
     const formDataRef = useRef(new FormData()) 
 
     const API_URL = import.meta.env.VITE_API_URL
 
     const appendToForm = (k, v) => {
         formDataRef.current.append(k, v)
-        console.log({k : v})
     }
     
     const fetchData = async () => {
         const form = formDataRef.current
 
         try {
-            console.log('Sending: ', form.get('file'))
+            setIsUploading(true)
             const res = await axios.post(`${API_URL}/analyse`, form, {
                 onUploadProgress : (e) => {
                     if(e.lengthComputable) {
@@ -62,11 +63,8 @@ export default function Input({ setData, setResReceived }) {
     return (
         <div className="text-white flex gap-4 min-h-screen min-w-screen flex-col items-center mb-2">
             <Header />
-            <FileUploader fetchData={fetchData} setFiles={setFiles} appendToForm={appendToForm} setPreviewData={setPreviewData} setHeaderData={setHeaderData} setSubmitted={setSubmitted}/>
-            <FileDetails progress={progress} formDataRef={formDataRef} files={files} appendToForm={appendToForm} />
-            {files.length > 0 && 
-            <UploadButton appendToForm={appendToForm} fetchData={fetchData} />
-            }
+            <FileUploader fetchData={fetchData} setFiles={setFiles} inputRef={inputRef} appendToForm={appendToForm} setPreviewData={setPreviewData} setHeaderData={setHeaderData} setSubmitted={setSubmitted}/>
+            <FileDetails inputRef={inputRef} progress={progress} fetchData={fetchData} formDataRef={formDataRef} files={files} appendToForm={appendToForm} setFiles={setFiles}/>
         </div> 
         )
 }
