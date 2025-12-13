@@ -5,6 +5,20 @@
 @tailwind components;
 @tailwind utilities;
 
+html::-webkit-scrollbar {
+  width: 8px;
+}
+
+html::-webkit-scrollbar-thumb {
+  height: 20px;
+  background-color: rgba(17, 151, 255, 0.4);
+  border-radius: 9999px;
+}
+
+html::-webkit-scrollbar-track {
+  background-color: #020617;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
